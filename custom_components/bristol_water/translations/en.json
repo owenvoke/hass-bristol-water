@@ -1,0 +1,27 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Bristol Water is already configured"
+        },
+        "error": {
+            "invalid_postcode": "Invalid postcode.",
+            "server_error": "Could not reach Bristol Water."
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "postcode": "Postcode"
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "scan_interval": "Change scan interval (hours)"
+                }
+            }
+        }
+    }
+}
