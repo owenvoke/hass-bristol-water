@@ -1,4 +1,4 @@
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, ENTITY_ID_FORMAT
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
@@ -13,6 +13,8 @@ class BristolWaterEntity(
     """Representation of a Bristol Water sensor."""
 
     entity_description: SensorEntityDescription
+
+    _entity_id_format = ENTITY_ID_FORMAT
 
     def __init__(
         self,
