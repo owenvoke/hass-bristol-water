@@ -7,5 +7,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/owenvoke/hass-bristol-water/issues",
   "requirements": ["jsonpath==0.82.2"],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
