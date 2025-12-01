@@ -1,4 +1,8 @@
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription, ENTITY_ID_FORMAT
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorEntityDescription,
+    ENTITY_ID_FORMAT,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
