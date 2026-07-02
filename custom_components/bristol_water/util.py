@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from jsonpath import jsonpath
+from jsonpath_ng import parse as jsonpath_parse
 
 from homeassistant.util.json import json_loads
 
@@ -21,11 +21,16 @@ def parse_json_attributes(
     try:
         json_dict = json_loads(value)
         if json_attrs_path is not None:
-            json_dict = jsonpath(json_dict, json_attrs_path)
-        # jsonpath will always store the result in json_dict[0]
-        # so the next line happens to work exactly as needed to
-        # find the result
+            # jsonpath_ng returns a list of matches; take their values.
+            json_dict = [
+                match.value for match in jsonpath_parse(json_attrs_path).find(json_dict)
+            ]
+        # The result is stored in json_dict[0], so the next line happens
+        # to work exactly as needed to find the result.
         if isinstance(json_dict, list):
+            if not json_dict:
+                _LOGGER.warning("JSONPath returned no results")
+                return {}
             json_dict = json_dict[0]
         if isinstance(json_dict, dict):
             return {k: json_dict[k] for k in json_attrs if k in json_dict}
