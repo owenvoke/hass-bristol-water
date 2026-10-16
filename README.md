@@ -30,11 +30,11 @@ A [Bristol Water](https://bristolwater.co.uk) sensor for Home Assistant
 
 ## Usage
 
-This can be configured fully via the Integrations interface. Click the following link to add a new Bristol Water site.
+This can be configured fully via the Integrations interface. Click the following link to add a Bristol Water postcode.
 
 [![Add Integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start?domain=bristol_water)
 
-The "Scan interval" can also be configured, this defaults to polling the API every 30 minutes.
+The "Scan interval" can also be configured, this defaults to polling the API every 24 hours.
 
 ## Security
 

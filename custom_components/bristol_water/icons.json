@@ -1,0 +1,42 @@
+{
+  "entity": {
+    "sensor": {
+      "alkalinity_caco3": {
+        "default": "mdi:water"
+      },
+      "alkalinity_hco3": {
+        "default": "mdi:water"
+      },
+      "calcium": {
+        "default": "mdi:water"
+      },
+      "chloride": {
+        "default": "mdi:water"
+      },
+      "fluoride": {
+        "default": "mdi:water"
+      },
+      "hardness": {
+        "default": "mdi:water"
+      },
+      "magnesium": {
+        "default": "mdi:water"
+      },
+      "nitrate": {
+        "default": "mdi:water"
+      },
+      "phosphate": {
+        "default": "mdi:water"
+      },
+      "sodium": {
+        "default": "mdi:water"
+      },
+      "sulphate": {
+        "default": "mdi:water"
+      },
+      "supply_zone": {
+        "default": "mdi:map"
+      }
+    }
+  }
+}

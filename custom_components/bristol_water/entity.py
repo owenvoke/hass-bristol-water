@@ -1,45 +1,35 @@
-from homeassistant.components.sensor import (
-    SensorEntity,
-    SensorEntityDescription,
-    ENTITY_ID_FORMAT,
-)
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.helpers.entity import DeviceInfo
+"""Base entity for Bristol Water."""
+
+from __future__ import annotations
+
+from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import BristolWaterUpdateCoordinator, DOMAIN, CONF_POSTCODE
+from .const import CONF_POSTCODE, DOMAIN
+from .coordinator import BristolWaterConfigEntry, BristolWaterUpdateCoordinator
 
 
 class BristolWaterEntity(
     CoordinatorEntity[BristolWaterUpdateCoordinator], SensorEntity
 ):
-    """Representation of a Bristol Water sensor."""
+    """A Bristol Water sensor."""
 
-    entity_description: SensorEntityDescription
-
-    _entity_id_format = ENTITY_ID_FORMAT
+    _attr_has_entity_name = True
 
     def __init__(
         self,
         coordinator: BristolWaterUpdateCoordinator,
-        entry: ConfigEntry,
+        entry: BristolWaterConfigEntry,
         description: SensorEntityDescription,
-    ):
-        """Initialize the sensor and set the update coordinator."""
+    ) -> None:
+        """Initialise the sensor."""
         super().__init__(coordinator)
-        self._attr_name = description.name
-        self._attr_unique_id = f"{entry.data[CONF_POSTCODE]}_{description.key}"
-
-        self.entry = entry
         self.entity_description = description
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device info."""
-        return DeviceInfo(
-            name=self.coordinator.name,
+        self._attr_unique_id = f"{entry.data[CONF_POSTCODE]}_{description.key}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=entry.title,
             entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, f"{self.entry.entry_id}")},
             manufacturer="Bristol Water",
         )

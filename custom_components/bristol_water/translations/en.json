@@ -1,27 +1,79 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "Bristol Water is already configured"
-        },
-        "error": {
-            "invalid_postcode": "Invalid postcode.",
-            "server_error": "Could not reach Bristol Water."
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "postcode": "Postcode"
-                }
-            }
-        }
+  "config": {
+    "abort": {
+      "already_configured": "Bristol Water is already configured for this postcode."
     },
-    "options": {
-        "step": {
-            "init": {
-                "data": {
-                    "scan_interval": "Change scan interval (hours)"
-                }
-            }
+    "error": {
+      "cannot_connect": "Could not reach Bristol Water.",
+      "invalid_postcode": "No water quality data was found for this postcode.",
+      "unknown": "Unexpected error."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "postcode": "Postcode"
         }
+      }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Scan interval (hours)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "alkalinity_caco3": {
+        "name": "Alkalinity (CaCO3)"
+      },
+      "alkalinity_hco3": {
+        "name": "Alkalinity (HCO3)"
+      },
+      "calcium": {
+        "name": "Calcium"
+      },
+      "chloride": {
+        "name": "Chloride"
+      },
+      "fluoride": {
+        "name": "Fluoride"
+      },
+      "hardness": {
+        "name": "Hardness"
+      },
+      "magnesium": {
+        "name": "Magnesium"
+      },
+      "nitrate": {
+        "name": "Nitrate"
+      },
+      "phosphate": {
+        "name": "Phosphate"
+      },
+      "sodium": {
+        "name": "Sodium"
+      },
+      "sulphate": {
+        "name": "Sulphate"
+      },
+      "classification": {
+        "name": "Classification"
+      },
+      "source": {
+        "name": "Source"
+      },
+      "supply_zone": {
+        "name": "Supply zone"
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Could not fetch data from Bristol Water: {error}"
+    }
+  }
 }

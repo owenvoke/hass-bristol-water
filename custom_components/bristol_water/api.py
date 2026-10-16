@@ -1,15 +1,19 @@
+"""Client for the Bristol Water water quality API."""
+
+from __future__ import annotations
+
+import asyncio
 import re
 from typing import Any, TypedDict
 
-import async_timeout
-from .util import parse_json_attributes
+import httpx
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.httpx_client import create_async_httpx_client
+from homeassistant.helpers.httpx_client import get_async_client
 
-from custom_components.bristol_water.const import (
+from .const import (
     API_ENDPOINT,
-    DATA_KEY_ALKALINITY_HCO3,
     DATA_KEY_ALKALINITY_CACO3,
+    DATA_KEY_ALKALINITY_HCO3,
     DATA_KEY_CALCIUM,
     DATA_KEY_CHLORIDE,
     DATA_KEY_CLASSIFICATION,
@@ -23,8 +27,34 @@ from custom_components.bristol_water.const import (
     DATA_KEY_SULPHATE,
     DATA_KEY_SUPPLY_ZONE,
 )
+from .util import parse_json_attributes
 
-DEFAULT_TIMEOUT = 10
+REQUEST_TIMEOUT = 10
+
+DATA_KEYS = [
+    DATA_KEY_SUPPLY_ZONE,
+    DATA_KEY_SOURCE,
+    DATA_KEY_CLASSIFICATION,
+    DATA_KEY_CALCIUM,
+    DATA_KEY_MAGNESIUM,
+    DATA_KEY_HARDNESS,
+    DATA_KEY_FLUORIDE,
+    DATA_KEY_ALKALINITY_CACO3,
+    DATA_KEY_ALKALINITY_HCO3,
+    DATA_KEY_CHLORIDE,
+    DATA_KEY_NITRATE,
+    DATA_KEY_PHOSPHATE,
+    DATA_KEY_SODIUM,
+    DATA_KEY_SULPHATE,
+]
+
+
+class BristolWaterError(Exception):
+    """The Bristol Water API could not be reached or returned an error."""
+
+
+class NoDataError(BristolWaterError):
+    """There is no water quality data for the postcode."""
 
 
 class BristolWaterData(TypedDict):
@@ -34,14 +64,14 @@ class BristolWaterData(TypedDict):
     alkalinity_hco3: str
     calcium: str
     chloride: str
-    classification: str
+    classification: str | None
     fluoride: str
     hardness: str
     magnesium: str
     nitrate: str
     phosphate: str
     sodium: str
-    source: str
+    source: str | None
     sulphate: str
     supply_zone: str
 
@@ -86,35 +116,20 @@ def dict_from_api(data: dict[str, Any]) -> BristolWaterData:
 
 
 async def get_data_for_postcode(hass: HomeAssistant, postcode: str) -> BristolWaterData:
-    async_client = create_async_httpx_client(hass)
+    """Fetch the water quality data for a postcode."""
+    try:
+        async with asyncio.timeout(REQUEST_TIMEOUT):
+            response = await get_async_client(hass).get(
+                API_ENDPOINT, params={"q": postcode}
+            )
+            response.raise_for_status()
+    except (httpx.HTTPError, TimeoutError) as err:
+        raise BristolWaterError(str(err) or type(err).__name__) from err
 
-    async with async_timeout.timeout(5):
-        response = await async_client.request(
-            "GET", API_ENDPOINT, params={"q": postcode}, timeout=DEFAULT_TIMEOUT
-        )
+    data = parse_json_attributes(response.text, DATA_KEYS, "$.objects[0].values")
 
-        data = parse_json_attributes(
-            response.text,
-            [
-                DATA_KEY_SUPPLY_ZONE,
-                DATA_KEY_SOURCE,
-                DATA_KEY_CLASSIFICATION,
-                DATA_KEY_CALCIUM,
-                DATA_KEY_MAGNESIUM,
-                DATA_KEY_HARDNESS,
-                DATA_KEY_FLUORIDE,
-                DATA_KEY_ALKALINITY_CACO3,
-                DATA_KEY_ALKALINITY_HCO3,
-                DATA_KEY_CHLORIDE,
-                DATA_KEY_NITRATE,
-                DATA_KEY_PHOSPHATE,
-                DATA_KEY_SODIUM,
-                DATA_KEY_SULPHATE,
-            ],
-            "$.objects[0].values",
-        )
+    # Every key is needed to build the data.
+    if not data or any(key not in data for key in DATA_KEYS):
+        raise NoDataError(f"No water quality data found for {postcode}")
 
-        if not data:
-            raise Exception("No data found for postcode")
-
-        return dict_from_api(data)
+    return dict_from_api(data)

@@ -1,33 +1,52 @@
+"""Data update coordinator for Bristol Water."""
+
+from __future__ import annotations
+
 import logging
 from datetime import timedelta
 
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from custom_components.bristol_water.api import BristolWaterData, get_data_for_postcode
+from .api import BristolWaterData, BristolWaterError, get_data_for_postcode
+from .const import CONF_POSTCODE, DEFAULT_SCAN_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+type BristolWaterConfigEntry = ConfigEntry[BristolWaterUpdateCoordinator]
+
 
 class BristolWaterUpdateCoordinator(DataUpdateCoordinator[BristolWaterData]):
-    """Coordinates updates between all Bristol Water sensors defined."""
+    """Fetch the water quality for a postcode."""
+
+    config_entry: BristolWaterConfigEntry
 
     def __init__(
-        self,
-        hass: HomeAssistant,
-        name: str,
-        postcode: str,
-        update_interval: timedelta,
+        self, hass: HomeAssistant, config_entry: BristolWaterConfigEntry
     ) -> None:
-        self._postcode = postcode
-
-        """Initialize the UpdateCoordinator for Bristol Water sensors."""
+        """Initialise the coordinator."""
         super().__init__(
             hass,
             _LOGGER,
-            name=name,
-            update_interval=update_interval,
+            config_entry=config_entry,
+            name=DOMAIN,
+            update_interval=timedelta(
+                hours=int(
+                    config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+                )
+            ),
         )
+        self._postcode: str = config_entry.data[CONF_POSTCODE]
 
     async def _async_update_data(self) -> BristolWaterData:
-        return await get_data_for_postcode(self.hass, self._postcode)
+        """Fetch the latest water quality data."""
+        try:
+            return await get_data_for_postcode(self.hass, self._postcode)
+        except BristolWaterError as err:
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="update_failed",
+                translation_placeholders={"error": str(err)},
+            ) from err
