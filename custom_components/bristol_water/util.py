@@ -3,9 +3,8 @@
 import logging
 from typing import Any
 
-from jsonpath_ng import parse as jsonpath_parse
-
 from homeassistant.util.json import json_loads
+from jsonpath_ng import parse as jsonpath_parse
 
 _LOGGER = logging.getLogger(__name__)
 
